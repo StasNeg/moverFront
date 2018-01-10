@@ -3,14 +3,30 @@ import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
+import { MoveMainAddressComponent } from './move-main-adress/move-main-address.component';
+import {CommonModule} from "@angular/common";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {AgmCoreModule} from "@agm/core";
+import { FromToComponent } from './move-main-adress/from-to/from-to.component';
+
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MoveMainAddressComponent,
+    FromToComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    CommonModule,
+    FormsModule,
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyC4NCBOr2KvWwLGTa1ZwU8V7ZtIuOrInPY',
+      libraries: ["places"]
+    }),
+    ReactiveFormsModule
+
   ],
   providers: [],
   bootstrap: [AppComponent]
