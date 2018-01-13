@@ -1,10 +1,9 @@
 <div class="container">
   <div class="row" class="col-sm-8 col-sm-offset-2" style="border:solid black 3px;">
     <div>
-      <form class="form-horizontal" role="form">
+      <form class="form-horizontal" role="form" #form="ngForm" >
         <fieldset>
           <legend>Request</legend>
-
           <div class="form-group">
             <div class="col-sm-4">
               <button class="btn btn-block btn-primary ">House</button>
@@ -16,16 +15,29 @@
               <button class="btn btn-block btn-primary">Office</button>
             </div>
           </div>
+          <div class="form-group">
+          <app-from-to [fromTo]="'from'"></app-from-to>
+            </div>
+          <div *ngFor="let address of addresses; let i = index" class="addStyle" class="form-inline col-sm-12">
+            <div class="col-sm-2">
+              <button type="button" class="btn"  (click)="deleteBetween(i)">
+                <span class="glyphicon glyphicon-minus"></span>
+              </button>
+            </div>
+            <div class="col-sm-10" >
+              <legend>Street : {{address.street}} Number : {{address.street_number}} City : {{address.city}}</legend>
+            </div>
+          </div>
 
-          <legend></legend>
-          <app-from-to></app-from-to>
           <div class="form-group col-sm-12">
             <div class="col-sm-12"><span class="col-sm-12"><h1></h1></span></div>
-            <button type="button" class="btn">
+            <button type="button" class="btn" (click)="addBetween()" [disabled] = "!addForm()">
               <span class="glyphicon glyphicon-plus"></span>
             </button>
           </div>
-          <app-from-to></app-from-to>
+
+
+          <app-from-to [fromTo] = "'to'"></app-from-to>
           <div class="form-group col-sm-12">
             <h1></h1>
             <label class="col-sm-offset-0 col-sm-2 ">Date</label>
@@ -34,14 +46,13 @@
             <input type ="time" class="col-sm-offset-7 col-sm-3" disabled>
           </div>
 
-
           <div class="form-group">
             <div class="col-sm-8"></div>
             <div class="col-sm-2">
               <button class="btn btn-block btn-primary ">Back</button>
             </div>
             <div class="col-sm-2">
-              <button class="btn btn-block btn-primary">Next</button>
+              <button class="btn btn-block btn-primary" type="submit" [disabled] = " !submitForm()">Next</button>
             </div>
           </div>
         </fieldset>

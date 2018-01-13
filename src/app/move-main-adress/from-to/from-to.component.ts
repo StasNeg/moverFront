@@ -1,6 +1,7 @@
-import {Component, ElementRef, NgZone, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, NgZone, OnInit, ViewChild, Input} from '@angular/core';
 import {MapsAPILoader} from "@agm/core";
-import {FormControl} from '@angular/forms';
+import {FormControl, FormGroup, Validator, Validators} from '@angular/forms';
+import {AddressService} from '../services/address.service'
 
 
 @Component({
@@ -10,34 +11,39 @@ import {FormControl} from '@angular/forms';
 })
 export class FromToComponent implements OnInit {
 
+  @Input() fromTo;
+  @ViewChild("search")
+  private searchElementRef: ElementRef;
+
   private lat;
   private lng;
-  public searchControl: FormControl;
-  public zoom: number;
+  private searchControl: FormControl;
+  private floorControl: FormControl;
+  private zoom: number;
   private openMap = false;
-
-  @ViewChild("search")
-  public searchElementRef: ElementRef;
+  private isFromTo;
+  private title;
 
   constructor(private mapsAPILoader: MapsAPILoader,
-              private ngZone: NgZone) {
+              private ngZone: NgZone,
+              private addressService: AddressService) {
   }
 
   ngOnInit() {
     this.zoom = 17;
-    this.lat = 39.8282;
-    this.lng = -98.5795;
-    this.searchControl = new FormControl();
+    this.searchControl = new FormControl('', null, this.checkValidAddress.bind(this));
+    this.floorControl = new FormControl(1, this.checkFloor.bind(this));
     this.setCurrentPosition();
+    this.setFromTo();
     this.mapsAPILoader.load().then(() => {
       let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef.nativeElement, {
+        componentRestrictions: {country: 'IL'},
         types: ["address"]
       });
       autocomplete.addListener("place_changed", () => {
         this.ngZone.run(() => {
           //get the place result
           let place: google.maps.places.PlaceResult = autocomplete.getPlace();
-
           //verify result
           if (place.geometry === undefined || place.geometry === null) {
             return;
@@ -59,40 +65,92 @@ export class FromToComponent implements OnInit {
     }
   }
 
-  onMapClick(event) {
+  public onMapClick(event) {
     this.lat = event.coords.lat;
     this.lng = event.coords.lng;
   }
 
-  onLocationClick() {
+
+  public onLocationClick() {
     this.openMap = true;
   }
 
-  codeLatLng1(lat, lng, callback) {
+  private codeLatLng(lat, lng, callback) {
     var latlng = new google.maps.LatLng(lat, lng);
-
     var geocoder = geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ 'latLng': latlng }, function (results, status) {
+    geocoder.geocode({'latLng': latlng}, function (results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
         if (results[0]) {
-          callback(results[0])
+          callback(results);
         }
       }
     });
   }
 
-  saveMarkers() {
+  public saveMarkers() {
     this.openMap = false;
-    this.codeLatLng1(this.lat, this.lng, (result)=>{
-      this.searchElementRef.nativeElement.value =result.formatted_address;
-      console.log(this.searchElementRef.nativeElement.value)
+    this.codeLatLng(this.lat, this.lng, (result) => {
+      this.searchElementRef.nativeElement.value = result.formatted_address;
+      this.searchControl.setValue(result[0].formatted_address);
     });
   }
 
+  private setFromTo() {
+    if (this.fromTo !== 'to') {
+      this.isFromTo = true;
+      this.title = 'From'
+    }
+    else {
+      this.isFromTo = false;
+      this.title = 'To'
+    }
+  }
 
+  public checkByAddress(control: FormControl, callback) {
+    var geocoder = geocoder = new google.maps.Geocoder();
+    var location = control.value;
+    geocoder.geocode({'address': location, 'componentRestrictions': {country: 'IL'}}, function (results, status) {
+      if (status == google.maps.GeocoderStatus.OK && results[0].types.includes('street_address')) {
+        callback(results[0]);
+      }
+      else {
+        callback('NO');
+      }
+    });
+  }
 
+  public checkValidAddress(control: FormControl): Promise<any> {
+    return new Promise((res, rej) => {
+      this.checkByAddress(control, (info) => {
+        console.log(info);
+        if (info === 'NO') {
+          this.addressService.clear(this.isFromTo);
+          res({
+            'wrongAddress': true
+          });
+        }
+        else {
+          let langlong = info.geometry.location;
+          this.lat = langlong.toJSON().lat;
+          this.lng = langlong.toJSON().lng;
+          this.addressService.save(this.isFromTo, info);
+          res(null);
+        }
+      });
+    });
+  }
 
+  closeMarkers() {
+    this.openMap = false;
+  }
 
-
+  checkFloor(control: FormControl) {
+    if (control.value === null || control.value === 0 || control.value < 0 ||  control.value==='') {
+      this.addressService.floorFrom = null;
+      return {'wrongFloor': true};
+    }
+    this.addressService.floorFrom = control.value;
+    return null;
+  }
 
 }

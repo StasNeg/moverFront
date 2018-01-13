@@ -8,6 +8,7 @@ import {CommonModule} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {AgmCoreModule} from "@agm/core";
 import { FromToComponent } from './move-main-adress/from-to/from-to.component';
+import {AddressService} from "./move-main-adress/services/address.service";
 
 
 
@@ -21,14 +22,15 @@ import { FromToComponent } from './move-main-adress/from-to/from-to.component';
     BrowserModule,
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyC4NCBOr2KvWwLGTa1ZwU8V7ZtIuOrInPY',
       libraries: ["places"]
     }),
-    ReactiveFormsModule
+
 
   ],
-  providers: [],
+  providers: [AddressService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
