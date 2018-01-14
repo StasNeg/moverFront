@@ -1,3 +1,4 @@
+<div class="form-group">
 <div class="col-sm-12">
   <label class="col-sm-1">{{title}}</label><label class="col-sm-offset-10">Floor</label>
   <div *ngIf="!openMap">
@@ -17,15 +18,15 @@
   </div>
   <div class="form-group col-sm-offset-0 col-sm-9">
     <input  placeholder="search for location" autocorrect="off" autocapitalize="off" spellcheck="off" type="text"
-           class="form-control" #search [formControl]="searchControl"  >
-    <!--(keyup.enter)="onEnterSearch(event)"-->
+           class="form-control" #search [formControl]="searchControl">
   </div>
-  <input type="number" class="form-control" class="col-sm-offset-0 col-sm-2" [formControl]="floorControl">
+  <input type="number" class="form-control" class="col-sm-offset-0 col-sm-2"  [(ngModel)] = "floor" [disabled] = "!isCorrectForSwitch()" (change)="floorOnChange()">
+
 </div>
 <div class="form-inline">
       <span class="col-sm-3">
             <label class="switch">
-              <input type="checkbox">
+              <input type="checkbox" [(ngModel)]="haveLift" [disabled] = "!isCorrectForSwitch()" (change)="haveLiftOnClick()">
               <span class="slider round"></span>
             </label>
             <label class="control-label">Lift</label>
@@ -33,7 +34,7 @@
   <div *ngIf="isFromTo">
       <span class="col-sm-offset-7">
             <label class="switch">
-              <input type="checkbox">
+              <input type="checkbox" [(ngModel)]="makePacking" [disabled] = "!isCorrectForSwitch()" (change)="makePackingOnclick()">
               <span class="slider round"></span>
             </label>
               <label class="control-label">Packaging</label>
@@ -42,3 +43,4 @@
 </div>
 
 
+</div>

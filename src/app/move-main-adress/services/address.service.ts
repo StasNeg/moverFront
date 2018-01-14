@@ -2,28 +2,38 @@ export class AddressService {
   public addressesTo = [];
   public addressFrom = null;
   public addressTo = null;
-  public floorFrom = null;
-
-  public isCorrectFormFrom() {
+  public typeAppartment = null;
+  public isCorrectForm() {
     if (this.addressFrom === null)
       return false;
-    if (this.floorFrom === null)
+    if (this.addressesTo.length === 0)
       return false;
+    return true;
+  }
+
+  public isCorrectAdd() {
     if (this.addressTo === null)
       return false;
     return true;
   }
 
-   save(isFromTo, info) {
-    if (isFromTo) {
-      this.saveFrom(info);
-    }else{
-      this.saveTo(info);
-    }
 
+  swithCorrect(isFromTo) {
+    if (isFromTo) {
+      if (this.addressFrom === null)
+        return false;
+    } else {
+      if (this.addressTo === null)
+        return false;
+    }
+    return true;
   }
 
-  saveFrom(info) {
+  save(isFromTo, info, floor, haveLift, makePacking) {
+    isFromTo ? this.saveFrom(info, floor, haveLift, makePacking) : this.saveTo(info, floor, haveLift);
+  }
+
+  saveFrom(info, floor, haveLift, makePacking) {
     let langlong = info.geometry.location;
     this.addressFrom = {
       street: info.address_components[1].long_name,
@@ -31,10 +41,14 @@ export class AddressService {
       city: info.address_components[2].long_name,
       lat: langlong.toJSON().lat,
       lng: langlong.toJSON().lng,
+      floor: floor,
+      lift: haveLift,
+      packaging: makePacking,
+
     }
   }
 
-  saveTo(info) {
+  saveTo(info, floor, haveLift) {
     let langlong = info.geometry.location;
     this.addressTo = {
       street: info.address_components[1].long_name,
@@ -42,17 +56,29 @@ export class AddressService {
       city: info.address_components[2].long_name,
       lat: langlong.toJSON().lat,
       lng: langlong.toJSON().lng,
+      floor: floor,
+      lift: haveLift
     }
   }
-  addTo(){
+
+  addTo() {
     this.addressesTo.push(this.addressTo)
+    this.addressTo = null;
   }
 
   clear(isFromTo) {
-    if (isFromTo) {
-      this.addressFrom = null;
-    }else{
-      this.addressTo = null;
-    }
+    isFromTo ? this.addressFrom = null : this.addressTo = null;
+  }
+
+  changeLift(isFromTo, lift) {
+    isFromTo ? this.addressFrom.lift = lift : this.addressTo.lift = lift;
+  }
+
+  changeFloor(isFromTo, floor) {
+    isFromTo ? this.addressFrom.floor = floor : this.addressTo.floor = floor;
+  }
+
+  changePacking(packing) {
+    this.addressFrom.packaging = packing;
   }
 }

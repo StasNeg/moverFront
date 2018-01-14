@@ -1,7 +1,8 @@
 import {Component, ElementRef, NgZone, OnInit, ViewChild, Input} from '@angular/core';
 import {MapsAPILoader} from "@agm/core";
-import {FormControl, FormGroup, Validator, Validators} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {AddressService} from '../services/address.service'
+import {Subject} from "rxjs/Subject";
 
 
 @Component({
@@ -15,14 +16,19 @@ export class FromToComponent implements OnInit {
   @ViewChild("search")
   private searchElementRef: ElementRef;
 
+  @Input()
+  parentSubject:Subject<any>;
+  private searchControl: FormControl;
+
   private lat;
   private lng;
-  private searchControl: FormControl;
-  private floorControl: FormControl;
   private zoom: number;
   private openMap = false;
   private isFromTo;
   private title;
+  public haveLift = false;
+  public makePacking = false;
+  public floor = 1;
 
   constructor(private mapsAPILoader: MapsAPILoader,
               private ngZone: NgZone,
@@ -32,7 +38,9 @@ export class FromToComponent implements OnInit {
   ngOnInit() {
     this.zoom = 17;
     this.searchControl = new FormControl('', null, this.checkValidAddress.bind(this));
-    this.floorControl = new FormControl(1, this.checkFloor.bind(this));
+    this.parentSubject.subscribe(event => {
+      this.clearAddress();
+    });
     this.setCurrentPosition();
     this.setFromTo();
     this.mapsAPILoader.load().then(() => {
@@ -122,7 +130,6 @@ export class FromToComponent implements OnInit {
   public checkValidAddress(control: FormControl): Promise<any> {
     return new Promise((res, rej) => {
       this.checkByAddress(control, (info) => {
-        console.log(info);
         if (info === 'NO') {
           this.addressService.clear(this.isFromTo);
           res({
@@ -133,7 +140,7 @@ export class FromToComponent implements OnInit {
           let langlong = info.geometry.location;
           this.lat = langlong.toJSON().lat;
           this.lng = langlong.toJSON().lng;
-          this.addressService.save(this.isFromTo, info);
+          this.addressService.save(this.isFromTo, info, this.floor, this.haveLift, this.makePacking);
           res(null);
         }
       });
@@ -144,13 +151,27 @@ export class FromToComponent implements OnInit {
     this.openMap = false;
   }
 
-  checkFloor(control: FormControl) {
-    if (control.value === null || control.value === 0 || control.value < 0 ||  control.value==='') {
-      this.addressService.floorFrom = null;
-      return {'wrongFloor': true};
-    }
-    this.addressService.floorFrom = control.value;
-    return null;
+  isCorrectForSwitch() {
+    return this.addressService.swithCorrect(this.isFromTo);
   }
 
+  makePackingOnclick(){
+    this.addressService.changePacking(this.makePacking);
+  }
+
+  haveLiftOnClick(){
+    this.addressService.changeLift(this.isFromTo, this.haveLift);
+  }
+
+  floorOnChange(){
+    this.addressService.changeFloor(this.isFromTo, this.floor);
+  }
+
+  clearAddress(){
+    if(!this.isFromTo) {
+      this.searchElementRef.nativeElement.value = '';
+      this.floor = 1;
+      this.haveLift = false;
+    }
+  }
 }
