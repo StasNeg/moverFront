@@ -12,17 +12,19 @@
           <div class="form-group col-sm-12">
             <app-from-to [parentSubject]="parentSubject" [fromTo]="'from'"></app-from-to>
           </div>
-          <div *ngFor="let address of addresses; let i = index" class="addStyle" class="form-inline col-sm-12">
-            <div class="col-sm-2">
-              <button type="button" class="btn"  (click)="deleteBetween(i)">
-                <span class="glyphicon glyphicon-minus"></span>
-              </button>
-            </div>
-            <div class="col-sm-8" >
-              <tr class="text-info">Street : {{address.street}} Number : {{address.street_number}} City : {{address.city}} Floor : {{address.floor}} Lift : {{address.lift}}</tr>
-            </div>
-          </div>
 
+          <div *ngFor="let address of addresses; let i = index"  >
+            <th><button type="button" class="btn btn-sm"  (click)="deleteBetween(i)">
+                  <span class="glyphicon glyphicon-minus"></span>
+            </button></th>
+                <th><button  type="button" class="btn btn-sm" [disabled]= "(i===0)" (click)="upBetween(i)">
+                  <span class="glyphicon glyphicon-arrow-up"></span>
+                </button></th>
+              <th>Street : {{address.street}} Number : {{address.street_number}} City : {{address.city}} Floor : {{address.floor}} Lift : {{address.lift}}</th>
+
+            </div>
+
+          <!--</div>-->
           <div class="form-group col-sm-12">
             <div class="col-sm-12"><span class="col-sm-12"><h1></h1></span></div>
             <button type="button" class="btn" (click)="addBetween()" [disabled] = "!addForm()">

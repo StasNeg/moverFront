@@ -21,8 +21,16 @@ export class MoveMainAddressComponent implements OnInit {
   ngOnInit() {
   }
 
-  deleteBetween(i) {
+  deleteBetween(i){
+
     this.addressService.addressesTo.splice(i, 1);
+    this.addresses = this.addressService.addressesTo;
+  }
+
+  upBetween(i) {
+    let temp = this.addressService.addressesTo[i-1];
+    this.addressService.addressesTo[i-1] = this.addressService.addressesTo[i];
+    this.addressService.addressesTo[i] = temp;
     this.addresses = this.addressService.addressesTo;
   }
 
@@ -46,6 +54,7 @@ export class MoveMainAddressComponent implements OnInit {
     this.addressService.typeAppartment = this.typeRadio;
   }
 
+
   onSubmitForm() {
     let result = {
       typeOfAppartment: this.addressService.typeAppartment,
@@ -56,4 +65,6 @@ export class MoveMainAddressComponent implements OnInit {
     }
     console.log(JSON.stringify(result));
   }
+
+
 }

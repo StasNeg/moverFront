@@ -1,12 +1,11 @@
+table, th, td{
+  border: 1px solid grey;
 
+}
 body {
   font-family:sans-serif;
 }
 
-tr{
-  border: solid black 2px;
-  border-color: #cccccc;
-}
 .types {
   margin:4px;
   float:left;
