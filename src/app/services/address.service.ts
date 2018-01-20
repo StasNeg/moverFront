@@ -81,4 +81,33 @@ export class AddressService {
   changePacking(packing) {
     this.addressFrom.packaging = packing;
   }
+
+  createAddressesArray(){
+    let ad = [];
+    if ( this.addressFrom == null && this.addressesTo.length==0)
+      return this.defaultMenu();
+    ad.push({
+      street: this.addressFrom.street,
+      city: this.addressFrom.city
+    })
+    for(let i=0; i< this.addressesTo.length-1;i++){
+      ad.push({
+        street: this.addressesTo[i].street,
+        city: this.addressesTo[i].city
+      })
+    }
+    return ad;
+  }
+
+  defaultMenu(){
+    let ad = [];
+    for(let i=0; i< 8;i++){
+      ad.push({
+        street: 'Street: ' + i,
+        city: 'City: ' + i
+      })
+    }
+    return ad;
+  }
+
 }

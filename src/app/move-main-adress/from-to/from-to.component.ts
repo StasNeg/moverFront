@@ -1,7 +1,7 @@
 import {Component, ElementRef, NgZone, OnInit, ViewChild, Input} from '@angular/core';
 import {MapsAPILoader} from "@agm/core";
 import {FormControl} from '@angular/forms';
-import {AddressService} from '../services/address.service'
+import {AddressService} from '../../services/address.service'
 import {Subject} from "rxjs/Subject";
 
 
@@ -88,6 +88,7 @@ export class FromToComponent implements OnInit {
     var geocoder = geocoder = new google.maps.Geocoder();
     geocoder.geocode({'latLng': latlng}, function (results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
+
         if (results[0]) {
           callback(results);
         }
