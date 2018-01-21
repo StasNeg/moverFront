@@ -6,11 +6,13 @@
     <option></option>
     <option *ngFor="let itemType of itemTypes">{{itemType.name}}</option>
   </select>
-  <label>Select Properties:</label>
-  <select *ngIf="isItemProperties" class="form-control" [(ngModel)]="property" (change)="itemPropertiesOnChange()">
-    <option></option>
-    <option *ngFor="let itemProperty of itemProperties">{{itemProperty}}</option>
-  </select>
+  <div *ngFor="let itemProperty of itemProperties">
+    <label>Select Properties: {{itemProperty.name}}</label>
+    <select *ngIf="isItemProperties" class="form-control" #changed (change)="itemPropertiesOnChange(itemProperty.name,changed.value)">
+      <option></option>
+      <option *ngFor="let property of itemProperty.properties">{{property}}</option>
+    </select>
+  </div>
 </div>
 <button class="btn btn-primary" (click)="closeForm(1)">Add</button>
 <button class="btn btn-primary" (click)="closeForm(2)">Close</button>

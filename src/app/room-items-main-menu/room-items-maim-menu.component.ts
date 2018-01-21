@@ -3,7 +3,8 @@ import {AddressService} from "../services/address.service";
 import {ItemService} from "../services/item.service";
 import {ItemAddressData} from "../interfaces/itemAddress-data";
 import {MatDialog} from "@angular/material";
-import {DialogComponent} from "./dialog/dialog.component";
+import {DialogComponent} from "./dialog/dialogItem/dialog.component";
+import {DialogRoomComponent} from "./dialog/dialogRoom/dialogRoom.component";
 
 
 @Component({
@@ -23,19 +24,16 @@ export class RoomItemsMainMenuComponent implements OnInit {
   open = false;
   roomTypeTotal;
 
+
   constructor(private addressService: AddressService, private itemService: ItemService, public dialog: MatDialog) {
   }
 
   ngOnInit() {
     this.addresses = this.addressService.createAddressesArray();
     this.itemService.getAppartmentsType().subscribe((responce) => {
-      this.roomType = [];
-      let counter = 0;
       this.roomTypeTotal = [];
       for (let i in (<Array<object>>responce.data)) {
         this.roomTypeTotal.push(responce.data[i]);
-        counter < 3 ? this.roomType.push(responce.data[i]) : null;
-        counter++;
       }
       this.createArrayItems();
     });
@@ -44,10 +42,10 @@ export class RoomItemsMainMenuComponent implements OnInit {
   createArrayItems() {
     for (let i = 0; i < this.addresses.length; i++) {
       let tempRooms: any[] = [];
-      for (let j = 0; j < this.roomType.length; j++) {
+      for (let j = 0; j < 3; j++) {
         tempRooms[j] = {
           id: j,
-          roomType: this.roomType[j],
+          roomType: this.roomTypeTotal[j],
           items: []
         }
       }
@@ -66,21 +64,29 @@ export class RoomItemsMainMenuComponent implements OnInit {
 
   onRoomTypeChange(i) {
     this.roomTypeCurrentIndex = i;
+
     this.showItems();
   }
 
   onAddressChange(i) {
     this.addressesCurrentIndex = i;
+    this.roomType = [];
+    for(let i = 0; i< this.arrayItems[this.addressesCurrentIndex].rooms.length; i++){
+      this.roomType.push(this.arrayItems[this.addressesCurrentIndex].rooms[i].roomType);
+    }
+    if(this.roomTypeCurrentIndex != -1 && this.roomType.length <= this.roomTypeCurrentIndex) {
+      this.items = [];
+      this.roomTypeCurrentIndex = -1;
+      return;
+    }
     this.showItems();
   }
 
   showItems() {
-
     if (!this.canAddItem()) {
       return;
     }
     this.items = this.arrayItems[this.addressesCurrentIndex].rooms[this.roomTypeCurrentIndex].items;
-
   }
 
   closeAllDialog() {
@@ -88,6 +94,30 @@ export class RoomItemsMainMenuComponent implements OnInit {
       this.dialog.closeAll();
       this.open = false;
     }
+  }
+
+  openRoomDialog() {
+    this.open = true;
+    this.dialog.closeAll();
+    let dialogRef = this.dialog.open(DialogRoomComponent, {
+      position: {
+        left: '350px'
+      },
+      height: '400px',
+      width: '600px',
+      data: this.roomTypeTotal
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result != null) {
+
+        this.arrayItems[this.addressesCurrentIndex].rooms.push({
+          id: this.arrayItems[this.addressesCurrentIndex].rooms.length,
+          roomType: result,
+          items: []
+        })
+        this.onAddressChange(this.addressesCurrentIndex)
+      }
+    });
   }
 
   openDialog(): void {
@@ -108,10 +138,24 @@ export class RoomItemsMainMenuComponent implements OnInit {
         this.arrayItems[this.addressesCurrentIndex].rooms[this.roomTypeCurrentIndex].items.push({
           id: result.item.id,
           name: result.item.name,
-          property: result.property
+          propertyWithType: result.property,
+          property: this.arrayFrom(result.property)
         });
       }
     });
+
+  }
+
+  private arrayFrom(property) {
+    let result = [];
+    for (let i in  property) {
+      result.push(property[i]);
+    }
+    return result;
+  }
+
+  isSelectedAddres() {
+    return this.addressesCurrentIndex >= 0;
   }
 
   canAddItem() {

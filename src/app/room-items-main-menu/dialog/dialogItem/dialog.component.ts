@@ -1,6 +1,6 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material";
-import {ItemService} from "../../services/item.service";
+import {ItemService} from "../../../services/item.service";
 
 
 @Component({
@@ -12,8 +12,8 @@ export class DialogComponent implements OnInit {
 
   private itemTypes;
   private itemTypeSelect = '';
-  private itemProperties;
-  private property;
+  private itemProperties = [];
+  private property = [];
   private resultItemType: { item: any, property?: any };
   private isItemProperties = false;
 
@@ -35,11 +35,15 @@ export class DialogComponent implements OnInit {
   itemTypeOnChange() {
     if (this.itemTypeSelect != '') {
       this.itemService.getItemsProperties(this.getId())
-        .subscribe(res => {
+        .subscribe((res) => {
+          this.itemProperties = [];
           this.isItemProperties = true;
-          this.itemProperties = res.data[0].value.split(' ');
+          for (let data in <Array<object>>res.data) {
+            this.itemProperties.push({name:res.data[data].name, properties: res.data[data].value.split(' ')});
+          }
         })
     } else {
+
       this.isItemProperties = false;
     }
   }
@@ -54,12 +58,13 @@ export class DialogComponent implements OnInit {
     }
   }
 
-  itemPropertiesOnChange() {
-    this.resultItemType.property = this.property;
+  itemPropertiesOnChange(type, event) {
+    this.property[type] = event;
   }
 
   closeForm(num) {
     if (num === 1) {
+      this.resultItemType.property = this.property;
       this.dialogRef.close(this.resultItemType);
     } else
       this.dialogRef.close(null);

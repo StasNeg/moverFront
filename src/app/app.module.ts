@@ -13,9 +13,10 @@ import {RoomsItemComponent} from './room-items-main-menu/rooms-item/rooms-item.c
 import {ItemService} from "./services/item.service";
 import {HttpClientModule} from "@angular/common/http";
 import {MatDialogModule} from '@angular/material/dialog';
-import { DialogComponent } from './room-items-main-menu/dialog/dialog.component';
+import { DialogComponent } from './room-items-main-menu/dialog/dialogItem/dialog.component';
 import {BrowserAnimationsModule, NoopAnimationsModule} from "@angular/platform-browser/animations";
 import {MatSelectModule} from "@angular/material";
+import {DialogRoomComponent} from "./room-items-main-menu/dialog/dialogRoom/dialogRoom.component";
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,7 +24,8 @@ import {MatSelectModule} from "@angular/material";
     FromToComponent,
     RoomItemsMainMenuComponent,
     RoomsItemComponent,
-    DialogComponent
+    DialogComponent,
+    DialogRoomComponent
   ],
   imports: [
     BrowserModule,
@@ -43,7 +45,7 @@ import {MatSelectModule} from "@angular/material";
   ],
   providers: [AddressService, ItemService],
   bootstrap: [AppComponent],
-  entryComponents: [DialogComponent]
+  entryComponents: [DialogComponent, DialogRoomComponent]
 })
 export class AppModule {
 }
